@@ -26,6 +26,7 @@ call dein#add('nvim-lua/completion-nvim')
 call dein#add('gfanto/fzf-lsp.nvim')
 call dein#add('kosayoda/nvim-lightbulb')
 call dein#add('nvim-lua/lsp_extensions.nvim')
+"call dein#add('hrsh7th/nvim-compe')
 
 call dein#add('sheerun/vim-polyglot')
 
@@ -48,7 +49,8 @@ call dein#add('preservim/nerdcommenter')
 
 " Version control
 call dein#add('tpope/vim-fugitive')
-"call dein#add('airblade/vim-gitgutter')
+call dein#add('lewis6991/gitsigns.nvim')
+call dein#add('nvim-lua/plenary.nvim') " Dependency for gitsigns
 
 " Databases
 call dein#add('tpope/vim-dadbod')
@@ -107,3 +109,5 @@ nmap <leader><CR> o<Esc>k
 map -<leader>i <Esc>
 
 let g:pandoc_preview_pdf_cmd = "zathura"
+
+lua require('gitsigns').setup()
