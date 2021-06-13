@@ -137,8 +137,6 @@ local function source(filename)
     vim.api.nvim_command('source ' .. config_path .. '/nvim/' .. filename)
 end
 
-source('tex.vim') -- ./tex.vim
-
 vim.cmd [[autocmd FileType rust let b:dispatch = 'cargo run --color never']]
 vim.cmd [[autocmd BufWritePre *.rs lua vim.lsp.buf.formatting()]]
 
