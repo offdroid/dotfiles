@@ -1,6 +1,6 @@
 local modules = {
-    'options', 'plugins', 'plugins.lspconfig', 'plugins.treesitter', 'mappings',
-    'plugins.telescope', 'plugins.misc'
+    'options', 'impatient', 'plugins', 'packer_compiled', 'plugins.lspconfig',
+    'plugins.treesitter', 'mappings', 'plugins.telescope', 'plugins.misc'
 }
 
 for i = 1, #modules do
