@@ -8,17 +8,6 @@ end
 -- jk-escape
 vim.api.nvim_set_keymap('i', 'jk', '<esc>', {})
 
--- Compe
--- map('i', '<c-y>', [[compe#confirm('c-y')]], {silent = true, expr = true})
---map('i', '<c-y>',
---    [[compe#confirm(luaeval("require 'nvim-autopairs'.autopairs_cr()"))]],
---    {silent = true, expr = true})
---map('i', '<c-e>', [[compe#close('c-e')]], {silent = true, expr = true})
---map('i', '<c-f>', [[compe#scroll({ 'delta': +4 })]],
---    {silent = true, expr = true})
---map('i', '<c-d>', [[compe#scroll({ 'delta': -4 })]],
---    {silent = true, expr = true})
-
 -- Vista
 map('n', '<leader>av', ':Vista!!<cr>', {silent = true})
 
@@ -94,29 +83,40 @@ map('o', 'm', ':<c-u>lua require"tsht".nodes()<cr>', {silent = true})
 map('v', 'm', ':lua require"tsht".nodes()<cr>', {silent = false})
 
 -- Lightspeed
-map('n', '<leader>s', "<cmd>:lua require'lightspeed'.s:to(false)<cr>")
-map('n', '<leader>S', "<cmd>:lua require'lightspeed'.s:to(true)<cr>")
+vim.api.nvim_set_keymap('n', '<leader>s', "<Plug>Lightspeed_s", {})
+vim.api.nvim_set_keymap('n', '<leader>S', "<Plug>Lightspeed_S", {})
+vim.api.nvim_set_keymap('n', '<leader>f', "<Plug>Lightspeed_f", {})
+vim.api.nvim_set_keymap('n', '<leader>F', "<Plug>Lightspeed_F", {})
+vim.api.nvim_set_keymap('n', '<leader>t', "<Plug>Lightspeed_t", {})
+vim.api.nvim_set_keymap('n', '<leader>T', "<Plug>Lightspeed_T", {})
 
 -- Navigate to nvim config
 vim.api.nvim_exec([[
 function! Config()
   execute 'cd ~/.config/nvim/lua'
-  lua require("telescope.builtin").find_files({search_dirs = {"~/.config/nvim/lua"}})
+  lua require('telescope.builtin').find_files({search_dirs = {'~/.config/nvim/lua'}})
 endfunction
 
 command! -nargs=0 Config call Config()
 ]], false)
 
 -- vim-illuminate
-vim.api.nvim_set_keymap('n', '<a-n>', '<cmd>lua require"illuminate".next_reference{wrap=true}<cr>', {noremap=true})
-vim.api.nvim_set_keymap('n', '<a-p>', '<cmd>lua require"illuminate".next_reference{reverse=true,wrap=true}<cr>', {noremap=true})
+vim.api.nvim_set_keymap('n', '<a-n>',
+                        '<cmd>lua require"illuminate".next_reference{wrap=true}<cr>',
+                        {noremap = true})
+vim.api.nvim_set_keymap('n', '<a-p>',
+                        '<cmd>lua require"illuminate".next_reference{reverse=true,wrap=true}<cr>',
+                        {noremap = true})
 
 -- Insert mode navigation
-map('i', '<c-h>', '<left>')
-map('i', '<c-j>', '<down>')
-map('i', '<c-k>', '<up>')
-map('i', '<c-l>', '<right>')
-map('c', '<c-h>', '<left>')
-map('c', '<c-j>', '<down>')
-map('c', '<c-k>', '<up>')
-map('c', '<c-l>', '<right>')
+map('i', '<c-b>', '<left>')
+map('i', '<c-n>', '<down>')
+map('i', '<c-p>', '<up>')
+map('i', '<c-f>', '<right>')
+map('c', '<c-b>', '<left>')
+map('c', '<c-n>', '<down>')
+map('c', '<c-p>', '<up>')
+map('c', '<c-f>', '<right>')
+
+-- NeoVim Code Action Menu
+map('n', 'gA', ':CodeActionMenu<cr>')

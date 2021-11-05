@@ -27,6 +27,8 @@ vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
 -- Combine system clipboard and the unnamed register
 vim.opt.clipboard = 'unnamed,unnamedplus'
 
+vim.opt.fileformat = 'unix'
+
 vim.opt.ignorecase = true
 -- Incremental search
 vim.opt.incsearch = true
@@ -48,7 +50,7 @@ vim.g.maplocalleader = ','
 if vim.fn.has('persistent_undo') == 1 then
     local target_path = vim.fn.expand('~/.vim/undo')
     if not vim.fn.isdirectory(target_path) then
-        os.execute("mkdir -p " .. target_path)
+        os.execute('mkdir -p ' .. target_path)
     end
     if vim.fn.isdirectory(target_path) then
         vim.o.undodir = target_path

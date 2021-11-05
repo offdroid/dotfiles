@@ -1,8 +1,9 @@
 " Set Editor Font
 if exists(':GuiFont')
-    " Use GuiFont! to ignore font errors
     " GuiFont FiraCode\ Nerd\ Font\ Mono:h13
-    GuiFont SFMono\ Nerd\ Font\ Mono:h13
+    " GuiFont SFMono\ Nerd\ Font\ Mono:h13
+    GuiFont CaskaydiaCove\ Nerd\ Font:h13
+    GuiFont Delugia\ Mono:h13
 endif
 
 " Disable GUI Tabline

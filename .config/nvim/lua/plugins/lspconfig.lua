@@ -1,19 +1,9 @@
-local nvim_lsp = require('lspconfig')
-
-local tabnine = require('cmp_tabnine.config')
-tabnine:setup({max_lines = 1000, max_num_results = 20, sort = true})
+local nvim_lsp = require 'lspconfig'
 
 local cmp = require 'cmp'
 local lspkind = require 'lspkind'
 cmp.setup {
-    snippet = {
-        expand = function(args)
-            -- You must install `vim-vsnip` if you use the following as-is.
-            vim.fn['vsnip#anonymous'](args.body)
-        end
-    },
-
-    -- You can set mapping if you want.
+    snippet = {expand = function(args) vim.fn['vsnip#anonymous'](args.body) end},
     mapping = {
         ['<c-p>'] = cmp.mapping.select_prev_item(),
         ['<c-n>'] = cmp.mapping.select_next_item(),
@@ -21,25 +11,19 @@ cmp.setup {
         ['<c-f>'] = cmp.mapping.scroll_docs(4),
         ['<c-Space>'] = cmp.mapping.complete(),
         ['<c-e>'] = cmp.mapping.close(),
-        ['<cr>'] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = true
-        }),
-        ['<c-y>'] = cmp.mapping.confirm({
-            behavior = cmp.ConfirmBehavior.Insert,
-            select = true
-        })
+        ['<cr>'] = cmp.mapping.confirm({select = true}),
+        ['<c-y>'] = cmp.mapping.confirm({select = true})
     },
-
-    -- You should specify your *installed* sources.
     sources = {
         {name = 'nvim_lsp'}, {name = 'buffer'}, {name = 'path'},
         {name = 'calc'}, {name = 'crates'}, {name = 'vsnip'},
-        {name = 'cmp_tabnine'}
+        {name = 'orgmode'}, {name = 'tag'}, {name = 'treesitter'},
+        {name = 'pandoc_references'}
+        -- {name = 'cmp_tabnine'},
     },
     formatting = {
-        format = function(_entry, vim_item)
-            vim_item.kind = lspkind.presets.default[vim_item.kind] .. " " ..
+        format = function(_, vim_item)
+            vim_item.kind = lspkind.presets.default[vim_item.kind] .. ' ' ..
                                 vim_item.kind
             return vim_item
         end
@@ -126,6 +110,7 @@ local on_attach = function(client, bufnr)
     if client.resolved_capabilities.document_formatting then
         buf_set_keymap('n', '<leader>gq',
                        '<cmd>lua vim.lsp.buf.formatting()<cr>', opts)
+        vim.cmd [[autocmd BufWritePre *.rs lua vim.lsp.buf.formatting_sync(nil, 200)]]
     elseif client.resolved_capabilities.document_range_formatting then
         buf_set_keymap('n', '<leader>gq',
                        '<cmd>lua vim.lsp.buf.range_formatting()<cr>', opts)
@@ -152,14 +137,10 @@ end
 vim.g.Illuminate_delay = 100
 vim.g.Illuminate_ftblacklist = {'nerdtree', 'Trouble', 'NvimTree', 'term'}
 vim.g.Illuminate_ftwhitelist = {'rust', 'python', 'lua'}
-vim.cmd [[autocmd InsertLeave,BufEnter,BufWinEnter,TabEnter,BufWritePost *.rs :lua require'lsp_extensions'.inlay_hints{ prefix = ' » ', highlight = "NonText", enabled = {"ChainingHint"} }]]
-vim.cmd [[
-autocmd FileType org lua require'cmp'.setup.buffer { sources = { { name = 'orgmode' }, { name = 'buffer' } }, }
-]]
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
-capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
+capabilities = require'cmp_nvim_lsp'.update_capabilities(capabilities)
 
 vim.lsp.handlers['textDocument/publishDiagnostics'] =
     vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -176,63 +157,94 @@ vim.lsp.handlers['textDocument/publishDiagnostics'] =
 local function setup_servers(servers)
     -- Setup regular servers without specific config
     for _, lsp in ipairs(servers) do
-        nvim_lsp[lsp].setup {on_attach = on_attach, capabilities = capabilities}
+        local settings = nil
+        if type(lsp) == 'table' then
+            settings = lsp[2]
+            lsp = lsp[1]
+        end
+        nvim_lsp[lsp].setup {
+            on_attach = on_attach,
+            capabilities = capabilities,
+            settings = settings
+        }
     end
 end
 
 local function setup_grammar_guard()
-    require'grammar-guard'.init()
-    nvim_lsp.grammar_guard.setup {
-        on_attach = on_attach,
-        capabilities = capabilities,
-        settings = {
-            ltex = {
-                enabled = {"latex", "tex", "bib", "markdown"},
-                language = "en",
-                diagnosticSeverity = "information",
-                setenceCacheSize = 2000,
-                additionalRules = {enablePickyRules = true, motherTongue = "en"},
-                trace = {server = "verbose"},
-                dictionary = {},
-                disabledRules = {},
-                hiddenFalsePositives = {}
-            }
-        }
-    }
-end
-
-local function setup_lua()
-    local sumneko_binary = '/usr/bin/lua-language-server'
-    local luadev = require('lua-dev').setup({
-        lspconfig = {
+    local ok, res = pcall(require, 'grammar-guard')
+    if ok then
+        res.init()
+        nvim_lsp.grammar_guard.setup {
             on_attach = on_attach,
-            cmd = {sumneko_binary},
+            capabilities = capabilities,
+            filetypes = {'tex', 'bib', 'markdown', 'org'},
             settings = {
-                Lua = {
-                    runtime = {
-                        version = 'LuaJIT',
-                        path = vim.split(package.path, ';')
-                    },
-                    diagnostics = {globals = {'vim'}},
-                    workspace = {
-                        library = {
-                            [vim.fn.expand('$VIMRUNTIME/lua')] = true,
-                            [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true
-                        }
+                ltex = {
+                    enabled = {'tex', 'bib', 'markdown', 'org'},
+                    language = 'en-US',
+                    diagnosticSeverity = 'information',
+                    checkFrequency = 'edit',
+                    sentenceCacheSize = 2000,
+                    additionalRules = {
+                        enablePickyRules = true,
+                        motherTongue = 'en-US'
                     }
                 }
             }
         }
-    })
-    nvim_lsp.sumneko_lua.setup(luadev)
+    end
+end
+
+local function setup_lua()
+    local sumneko_binary = '/usr/bin/lua-language-server'
+    local ok, lua_dev = pcall(require, 'lua-dev')
+    if ok then
+        local luadev = lua_dev.setup({
+            lspconfig = {
+                on_attach = on_attach,
+                cmd = {sumneko_binary},
+                settings = {
+                    Lua = {
+                        runtime = {
+                            version = 'LuaJIT',
+                            path = vim.split(package.path, ';')
+                        },
+                        diagnostics = {globals = {'vim'}},
+                        workspace = {
+                            library = {
+                                [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+                                [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        nvim_lsp.sumneko_lua.setup(luadev)
+    end
 end
 
 setup_servers {
-    'texlab', 'clangd', 'julials', 'pylsp', 'pyright', 'rust_analyzer',
-    'tsserver', 'html'
+    'texlab', 'clangd', 'julials', {
+        'pyright', {
+            pyright = {disableLanguageServices = false},
+            python = {
+                analysis = {
+                    autoSearchPaths = true,
+                    diagnosticMode = "workspace",
+                    useLibraryCodeForTypes = true
+                }
+            }
+        }
+    }, {'pylsp', {pylsp = {plugins = {mccabe = {threshold = 19}}}}}, 'tsserver',
+    'html'
 }
-setup_lua()
-setup_grammar_guard()
+pcall(setup_lua)
+pcall(setup_grammar_guard)
+require('rust-tools').setup({
+    server = {on_attach = on_attach, capabilities = capabilities}
+})
+
 diagnostics_symbols {
     error_sign = '',
     warn_sign = '',
@@ -240,3 +252,19 @@ diagnostics_symbols {
     infor_sign = ''
 }
 
+vim.lsp.handlers['textDocument/codeAction'] =
+    require'lsputil.codeAction'.code_action_handler
+vim.lsp.handlers['textDocument/references'] =
+    require'lsputil.locations'.references_handler
+vim.lsp.handlers['textDocument/definition'] =
+    require'lsputil.locations'.definition_handler
+vim.lsp.handlers['textDocument/declaration'] =
+    require'lsputil.locations'.declaration_handler
+vim.lsp.handlers['textDocument/typeDefinition'] =
+    require'lsputil.locations'.typeDefinition_handler
+vim.lsp.handlers['textDocument/implementation'] =
+    require'lsputil.locations'.implementation_handler
+vim.lsp.handlers['textDocument/documentSymbol'] =
+    require'lsputil.symbols'.document_handler
+vim.lsp.handlers['workspace/symbol'] =
+    require'lsputil.symbols'.workspace_handler

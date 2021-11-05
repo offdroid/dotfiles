@@ -22,4 +22,4 @@ vim.api.nvim_set_var('nvim_tree_icons', {
     },
     lsp = {hint = '', info = '', warning = '', error = ''}
 })
-require'nvim-tree'.setup {}
+require'nvim-tree'.setup {update_cwd = true}

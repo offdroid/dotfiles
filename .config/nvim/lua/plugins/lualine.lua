@@ -2,17 +2,11 @@
 local status = require 'lsp-status'
 status.config {status_symbol = ' 力'}
 
--- Temporary fix for https://github.com/projekt0n/github-nvim-theme/issues/83
-local gh_theme = require('lualine.themes.github')
-local gh_colors = require('github-theme.colors').setup()
-gh_theme.inactive.a.fg = gh_colors.white
-gh_theme.inactive.b.fg = gh_colors.white
-gh_theme.inactive.c.fg = gh_colors.white
+local mytheme = require('lualine.themes.auto')
 require'lualine'.setup {
     options = {
-        theme = 'github',
-        -- theme = 'material-nvim',
         -- theme = 'tokyonight',
+        theme = mytheme,
         extensions = {'nvim-tree', 'fugitive'},
         section_separators = {'', ''},
         component_separators = {'', ''}

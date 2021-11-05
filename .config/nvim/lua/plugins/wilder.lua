@@ -9,6 +9,5 @@ vim.cmd [[ call wilder#set_option('pipeline', [ wilder#branch( wilder#cmdline_pi
 vim.cmd [[ let g:highlighters = [ wilder#pcre2_highlighter(), wilder#basic_highlighter(), ] ]]
 
 -- Without experimental border
---[[ vim.cmd [[ call wilder#set_option('renderer', wilder#renderer_mux({ ':': wilder#popupmenu_renderer({ 'highlighter': g:highlighters, }), '/': wilder#wildmenu_renderer({ 'highlighter': g:highlighters, }), })) ]]
--- ]]
-vim.cmd [[ call wilder#set_option('renderer', wilder#renderer_mux({ ':': wilder#popupmenu_renderer(wilder#popupmenu_border_theme({ 'highlighter': g:highlighters, 'highlights': { 'border': 'Normal', }, 'border': 'rounded', })), '/': wilder#wildmenu_renderer({ 'highlighter': g:highlighters, }), }))]]
+vim.cmd [[ call wilder#set_option('renderer', wilder#renderer_mux({ ':': wilder#popupmenu_renderer({ 'highlighter': g:highlighters, }), '/': wilder#wildmenu_renderer({ 'highlighter': g:highlighters, }), })) ]]
+-- vim.cmd [[ call wilder#set_option('renderer', wilder#renderer_mux({ ':': wilder#popupmenu_renderer(wilder#popupmenu_border_theme({ 'highlighter': g:highlighters, 'highlights': { 'border': 'Normal', }, 'border': 'rounded', })), '/': wilder#wildmenu_renderer({ 'highlighter': g:highlighters, }), }))]]
