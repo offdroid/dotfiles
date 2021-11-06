@@ -13,7 +13,7 @@ return require'packer'.startup(function(use)
         requires = {
             'hrsh7th/cmp-vsnip', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-nvim-lsp',
             'hrsh7th/cmp-calc', 'hrsh7th/cmp-path', 'hrsh7th/vim-vsnip',
-            'ray-x/cmp-treesitter', '/home/filip/Git/cmp-pandoc-references'
+            'ray-x/cmp-treesitter'
         },
         disable = false
     }
