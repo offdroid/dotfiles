@@ -239,11 +239,13 @@ setup_servers {
     }, {'pylsp', {pylsp = {plugins = {mccabe = {threshold = 19}}}}}, 'tsserver',
     'html'
 }
-pcall(setup_lua)
-pcall(setup_grammar_guard)
-require('rust-tools').setup({
-    server = {on_attach = on_attach, capabilities = capabilities}
-})
+if vim.fn.has('unix') == 1 then
+    pcall(setup_lua)
+    pcall(setup_grammar_guard)
+    require('rust-tools').setup({
+        server = {on_attach = on_attach, capabilities = capabilities}
+    })
+end
 
 diagnostics_symbols {
     error_sign = '',

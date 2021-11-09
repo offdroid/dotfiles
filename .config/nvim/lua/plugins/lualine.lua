@@ -2,16 +2,16 @@
 local status = require 'lsp-status'
 status.config {status_symbol = ' 力'}
 
-local mytheme = require('lualine.themes.auto')
+-- local mytheme = require('lualine.themes.auto')
 require'lualine'.setup {
     options = {
-        -- theme = 'tokyonight',
-        theme = mytheme,
+        theme = 'tokyonight',
+        -- theme = mytheme,
         extensions = {'nvim-tree', 'fugitive'},
-        section_separators = {'', ''},
-        component_separators = {'', ''}
+        section_separators = {left = '', right = ''},
+        component_separators = {left = '', right = ''}
     },
-    sections = {
+    --[[ sections = {
         lualine_a = {
             'mode', {
                 'diagnostics',
@@ -24,7 +24,7 @@ require'lualine'.setup {
             }
         },
         lualine_c = {'filename', {status.status}}
-    },
+    }, ]]
     inactive_sections = {
         lualine_a = {},
         lualine_b = {'filename'},

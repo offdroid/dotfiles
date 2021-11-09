@@ -17,11 +17,12 @@ if vim.fn.has('unix') and not vim.fn.exists('g:neovide') == 1 then
     vim.g.tokyonight_transparent_sidebar = i3_processes >= 1
     vim.opt.cursorline = i3_processes >= 1
 else
+    local day_night_active = false
     vim.g.tokyonight_transparent = false
     vim.g.tokyonight_transparent_sidebar = false
 
     local hour = os.date('*t').hour
-    if 6 <= hour and hour <= 16 then
+    if 6 <= hour and hour <= 16 and day_night_active then
         vim.g.tokyonight_day_brightness = 0.4
         vim.g.tokyonight_style = 'day'
     else
@@ -31,5 +32,5 @@ end
 vim.g.tokyonight_lualine_bold = true
 vim.g.tokyonight_hide_inactive_statusline = false
 
--- vim.cmd [[colorscheme tokyonight]]
-vim.cmd [[colorscheme base16-atelier-lakeside]]
+vim.cmd [[colorscheme tokyonight]]
+-- vim.cmd [[colorscheme base16-atelier-lakeside]]

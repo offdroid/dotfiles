@@ -28,7 +28,6 @@ vim.opt.foldexpr = 'nvim_treesitter#foldexpr()'
 vim.opt.clipboard = 'unnamed,unnamedplus'
 
 vim.opt.fileformat = 'unix'
-vim.opt.shellslash = true
 
 vim.opt.ignorecase = true
 -- Incremental search
