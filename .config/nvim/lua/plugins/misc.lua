@@ -7,11 +7,11 @@ end
 
 if vim.fn.exists('g:neovide') == 1 then
     vim.o.guifont =
-        'FiraCode Nerd Font Mono,DejaVu Sans Mono,Noto Color Emoji,Monospace:h12'
+        'FiraCode Nerd Font Mono,DejaVu Sans Mono,Noto Color Emoji,Monospace:h11'
     vim.g.neovide_refresh_rate = 144
-    vim.g.neovide_cursor_animation_length = 0.02
+    vim.g.neovide_cursor_animation_length = 0.01
     vim.g.neovide_cursor_antialiasing = true
-    vim.g.neovide_transparency = 0.8
+    -- vim.g.neovide_transparency = 0.8
 end
 
 map('n', '<c-s-v>', '"*p')
@@ -29,3 +29,16 @@ end
 
 -- pandoc-preview
 vim.api.nvim_set_var('pandoc_preview_pdf_cmd', 'zathura')
+
+-- Navigate to nvim config
+vim.api.nvim_exec([[
+function! Config()
+  execute 'cd ~/.config/nvim/lua'
+  lua require('telescope.builtin').find_files({search_dirs = {'~/.config/nvim/lua'}})
+endfunction
+
+command! -nargs=0 Config call Config()
+]], false)
+
+-- Doge
+vim.g.doge_enable_mappings = false

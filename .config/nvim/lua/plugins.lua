@@ -5,6 +5,7 @@ return require'packer'.startup({
         use 'wbthomason/packer.nvim'
         use 'lewis6991/impatient.nvim' -- Performance improvements
         use 'nvim-lua/plenary.nvim'
+        use {'nathom/filetype.nvim', disable = true}
 
         -- LSP
         use {'neovim/nvim-lsp'}
@@ -31,13 +32,12 @@ return require'packer'.startup({
             requires = 'honza/vim-snippets',
             disable = not has('unix')
         }
-        use {'rrethy/vim-illuminate'}
+        use {'rrethy/vim-illuminate', disable = true}
         use {
             'simrat39/rust-tools.nvim', -- Collection of rust tools
             requires = {'nvim-lua/plenary.nvim', 'nvim-lua/popup.nvim'},
             disable = false
         }
-        use {'brymer-meneses/grammar-guard.nvim', requires = 'nvim-lspconfig'}
         use {'akinsho/flutter-tools.nvim', requires = 'nvim-lua/plenary.nvim'}
         use {'folke/lua-dev.nvim'}
         use {'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu'}
@@ -111,12 +111,12 @@ return require'packer'.startup({
                 vim.cmd [[highlight IndentBlanklineIndent4 guifg=#56B6C2 gui=nocombine]]
                 vim.cmd [[highlight IndentBlanklineIndent5 guifg=#61AFEF gui=nocombine]]
                 vim.cmd [[highlight IndentBlanklineIndent6 guifg=#C678DD gui=nocombine]]
-                require("indent_blankline").setup {
-                    space_char_blankline = " ",
+                require('indent_blankline').setup {
+                    space_char_blankline = ' ',
                     char_highlight_list = {
-                        "IndentBlanklineIndent1", "IndentBlanklineIndent2",
-                        "IndentBlanklineIndent3", "IndentBlanklineIndent4",
-                        "IndentBlanklineIndent5", "IndentBlanklineIndent6"
+                        'IndentBlanklineIndent1', 'IndentBlanklineIndent2',
+                        'IndentBlanklineIndent3', 'IndentBlanklineIndent4',
+                        'IndentBlanklineIndent5', 'IndentBlanklineIndent6'
                     }
                 }
             end
@@ -124,6 +124,11 @@ return require'packer'.startup({
         use { -- Status line
             'nvim-lualine/lualine.nvim',
             requires = {'kyazdani42/nvim-web-devicons', 'tokyonight.nvim'}
+        }
+        use {
+            'akinsho/bufferline.nvim',
+            requires = 'kyazdani42/nvim-web-devicons',
+            config = function() require'bufferline'.setup {} end
         }
         use { -- Utility to get the LSP status for the status line
             'nvim-lua/lsp-status.nvim',
@@ -168,12 +173,14 @@ return require'packer'.startup({
             'conweller/findr.vim',
             config = function()
                 vim.api.nvim_set_var('findr_floating_window', 0)
-            end
+            end,
+            disable = true
         }
         use {'kevinhwang91/rnvimr', cmd = {'RnvimrToggle'}}
         use {
             'gelguy/wilder.nvim',
-            config = function() require 'plugins/wilder' end
+            config = function() require 'plugins/wilder' end,
+            disable = true
         }
         use { -- ctags
             'universal-ctags/ctags'
@@ -270,6 +277,16 @@ return require'packer'.startup({
             opt = false,
             requires = {'nvim-treesitter', 'nvim-cmp', 'ultisnips'}
         }
+        use {
+            'rmagatti/auto-session',
+            config = function()
+                require('auto-session').setup {
+                    log_level = 'info',
+                    auto_session_suppress_dirs = {'~/', '~/Git', '~/Downloads'}
+                }
+            end,
+            disable = true
+        }
 
         -- Collaboration
         use {
@@ -307,10 +324,7 @@ return require'packer'.startup({
                     repl_enable = {},
                     repl_disable = {},
                     interpreter_options = {
-                        Python3_original = {
-                            intepreter = 'python3.9'
-                            -- venv = {}
-                        }
+                        Python3_original = {intepreter = 'python3.9'}
                     },
                     display = {
                         'Classic', 'VirtualTextOk', 'VirtualTextErr',
@@ -321,12 +335,9 @@ return require'packer'.startup({
             end
         }
         -- TeX
-        use {
-            'lervag/vimtex',
-            ft = {'tex', 'cls'},
-            opt = true,
-            config = function() require 'plugins/vimtex' end
-        }
+        use {'lervag/vimtex', config = function()
+            require 'plugins/vimtex'
+        end}
         use {'da-h/AirLatex.vim', opt = true, disable = true}
         -- json
         use {'gennaro-tedesco/nvim-jqx', ft = 'json', disable = true}
@@ -363,6 +374,17 @@ return require'packer'.startup({
         -- Handlebars
         use {'mustache/vim-mustache-handlebars', ft = 'handlebars'}
 
+        -- Debug
+        use {'rcarriga/nvim-dap-ui', requires = {'mfussenegger/nvim-dap'}}
+        use {
+            'theHamsta/nvim-dap-virtual-text',
+            requires = {'rcarriga/nvim-dap-ui'}
+        }
+        use {
+            'mfussenegger/nvim-dap-python',
+            requires = {'rcarriga/nvim-dap-ui'}
+        }
+
         -- Misc
         use {'tpope/vim-fugitive'} -- Git integration
         use {
@@ -371,6 +393,9 @@ return require'packer'.startup({
             config = function() require('vgit').setup() end,
             disable = true
         }
+        use {'kkoomen/vim-doge', run = ':call doge#install()', ft = 'python'}
+
+        use {'LionC/nest.nvim', disable = true}
         use {
             'folke/which-key.nvim',
             config = function()
@@ -379,6 +404,7 @@ return require'packer'.startup({
                 }
             end
         }
+
         use {'famiu/bufdelete.nvim'}
         use {'metakirby5/codi.vim', opt = true, cmd = {'Codi'}} -- In-place REPL
         use {'hkupty/iron.nvim', opt = true, disable = true}
@@ -403,6 +429,7 @@ return require'packer'.startup({
             cmd = {'CarbonNowSh'},
             opt = true
         }
+        use {'edluffy/hologram.nvim', disable = true}
 
         use {
             'windwp/nvim-autopairs',
@@ -429,12 +456,21 @@ return require'packer'.startup({
             'monaqa/dial.nvim',
             config = function()
                 local dial = require 'dial'
+                -- Enable inc/decrementing integers
+                table.insert(dial.config.searchlist.normal, 'number#decimal#int')
+
                 dial.augends['custom#boolean'] =
                     dial.common.enum_cyclic {
                         name = 'boolean',
                         strlist = {'true', 'false'}
                     }
                 table.insert(dial.config.searchlist.normal, 'custom#boolean')
+                dial.augends['custom#booleanpy'] =
+                    dial.common.enum_cyclic {
+                        name = 'booleanpy',
+                        strlist = {'True', 'False'}
+                    }
+                table.insert(dial.config.searchlist.normal, 'custom#booleanpy')
             end
         }
 

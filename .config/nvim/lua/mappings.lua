@@ -4,50 +4,74 @@ local function map(mode, lhs, rhs, opts)
     if opts then options = vim.tbl_extend('force', options, opts) end
     vim.api.nvim_set_keymap(mode, lhs, rhs, options)
 end
+local wk = require 'which-key'
 
--- jk-escape
-vim.api.nvim_set_keymap('i', 'jk', '<esc>', {})
+wk.register {
+    ['<leader>f'] = {
+        name = '+telescope',
+        f = {
+            function() require'telescope.builtin'.find_files() end,
+            'Find files',
+            silent = true
+        },
+        g = {function() require'telescope.builtin'.live_grep() end, 'Live grep'},
+        G = {function() require'telescope.builtin'.git_files() end, 'Git files'},
+        c = {
+            function() require'telescope.builtin'.git_commits() end,
+            'Git commits'
+        },
+        C = {function() require'telescope.builtin'.commands() end, 'Commands'},
+        m = {function() require'telescope.builtin'.keymaps() end, 'Keymaps'},
+        b = {function() require'telescope.builtin'.buffers() end, 'Buffers'}
+    },
+    ['<c-p>'] = {
+        function()
+            require'telescope.builtin'.find_files({previewer = false})
+        end, 'Find files'
+    },
+    ['<c-z>'] = {
+        function() require'telescope.builtin'.oldfiles() end, 'Previous files'
+    },
+    ['<c-n>'] = {':NvimTreeToggle<cr>', 'Toggle NvimTree'},
+    ['<leader>a'] = {
+        name = '+windows',
+        f = {':NvimTreeToggle<cr>', 'Toggle NvimTree'},
+        d = {function() require'dapui'.toggle() end, 'Toggle Dap UI'}
+    },
+    ['<leader>m'] = {
+        name = '+dispatch',
+        d = {':Dispatch<cr>', 'Dispatch'},
+        m = {':Make<cr>', 'Make'},
+        r = {function() require'dap'.repl.open() end, 'Repl open (dap)'},
+        l = {function() require'dap'.run_last() end, 'Run last (dap)'}
+    },
+    ['<F5>'] = {function() require'dap'.continue() end, 'Continue'},
+    ['<F10>'] = {function() require'dap'.step_over() end, 'Step over'},
+    ['<F11>'] = {function() require'dap'.step_into() end, 'Step into'},
+    ['<F12>'] = {function() require'dap'.step_out() end, 'Step out'},
+    ['<leader>b'] = {
+        name = '+breakpoint',
+        b = {
+            function() require'dap'.toggle_breakpoint() end, 'Toggle breakpoint'
+        },
+        B = {
+            function()
+                require'dap'.set_breakpoint(vim.fn.input(
+                                                'Breakpoint condition: '))
+            end, 'Conditional breakpoint'
+        },
+        l = {
+            function()
+                require'dap'.set_breakpoint(nil, nil,
+                                            vim.fn.input('Log point message: '))
+            end, 'Log-point'
+        }
+    }
+}
 
--- Vista
-map('n', '<leader>av', ':Vista!!<cr>', {silent = true})
-
--- NVIM-tree
-map('n', '<leader>af', ':NvimTreeToggle<cr>')
-map('n', '<c-n>', ':NvimTreeToggle<cr>')
-
--- Telescope
-map('n', '<leader>ff',
-    [[<cmd>lua require('telescope.builtin').find_files()<cr>]], {silent = true})
-map('n', '<leader>fg',
-    [[<cmd>lua require('telescope.builtin').live_grep()<cr>]], {silent = true})
-map('n', '<leader>fG',
-    [[<cmd>lua require('telescope.builtin').git_files()<cr>]], {silent = true})
-map('n', '<leader>fc',
-    [[<cmd>lua require('telescope.builtin').git_commits()<cr>]], {silent = true})
-map('n', '<leader>fb', [[<cmd>lua require('telescope.builtin').buffers()<cr>]],
-    {silent = true})
-map('n', '<leader>fm', [[<cmd>lua require('telescope.builtin').keymaps()<cr>]],
-    {silent = true})
-map('n', '<leader>fC', [[<cmd>lua require('telescope.builtin').commands()<cr>]],
-    {silent = true})
-map('n', '<c-p>', [[<cmd>lua require('telescope.builtin').find_files()<cr>]],
-    {silent = true})
-map('n', '<c-z>', [[<cmd>lua require('telescope.builtin').oldfiles()<cr>]],
-    {silent = true})
-
--- Ultisnips
-vim.api
-    .nvim_set_var('UltiSnipsSnippetDirectories', {'UltiSnips', 'my_snippets'})
-vim.api.nvim_set_var('UltiSnipsExpandTrigger', '<c-s>')
-vim.api.nvim_set_var('UltiSnipsJumpForwardTrigger', '<c-b>')
-vim.api.nvim_set_var('UltiSnipsJumpBackwardTrigger', '<c-z>')
-
--- Dispatch
-map('n', '<leader>md', ':Dispatch<cr>')
-map('n', '<leader>mm', ':Make<cr>')
-
--- Findr
-map('n', '<c-c><c-f>', ':Findr<cr>')
+map('i', 'jk', '<esc>', {silent = true, noremap = true})
+map('n', '<cr>', ':noh<cr>', {silent = true, noremap = true})
+map('n', '<esc>', ':noh<cr>', {silent = true, noremap = true})
 
 -- dial.nvim
 vim.api.nvim_set_keymap('n', '<c-a>', '<Plug>(dial-increment)', {})
@@ -57,22 +81,11 @@ vim.api.nvim_set_keymap('v', '<c-x>', '<Plug>(dial-decrement)', {})
 vim.api.nvim_set_keymap('v', 'g<c-a>', '<Plug>(dial-increment-additional)', {})
 vim.api.nvim_set_keymap('v', 'g<c-x>', '<Plug>(dial-decrement-additional)', {})
 
--- Clear search with enter or esc
-map('n', '<cr>', ':noh<cr>', {silent = true})
-map('n', '<esc>', ':noh<cr>', {silent = true})
-
--- VimTex
-map('n', '<leader>ll', ':VimtexCompile<cr>')
+wk.register({['<leader>ll'] = {':VimtexCompile<cr>', 'Compile (vimtex)'}})
 
 -- Winresizer
 vim.api.nvim_set_var('winresizer_start_key', '<leader>r')
-
--- Sniprun
-vim.api.nvim_set_keymap('n', '<leader>fr', ':%SnipRun<cr>', {silent = true})
-vim.api.nvim_set_keymap('v', '<leader>f', '<Plug>SnipRun', {silent = true})
-vim.api.nvim_set_keymap('n', '<leader>f', '<Plug>SnipRunOperator',
-                        {silent = true})
-vim.api.nvim_set_keymap('n', '<leader>ff', '<Plug>SnipRun', {silent = true})
+wk.register({["<leader>r"] = {'Resize window'}})
 
 -- Treesitter Unit
 map('v', 'x', ':lua require"treesitter-unit".select()<CR>')
@@ -85,34 +98,12 @@ map('v', 'm', ':lua require"tsht".nodes()<cr>', {silent = false})
 -- Lightspeed
 vim.api.nvim_set_keymap('n', '<leader>s', "<Plug>Lightspeed_s", {})
 vim.api.nvim_set_keymap('n', '<leader>S', "<Plug>Lightspeed_S", {})
-vim.api.nvim_set_keymap('n', '<leader>f', "<Plug>Lightspeed_f", {})
+--[[ vim.api.nvim_set_keymap('n', '<leader>f', "<Plug>Lightspeed_f", {})
 vim.api.nvim_set_keymap('n', '<leader>F', "<Plug>Lightspeed_F", {})
 vim.api.nvim_set_keymap('n', '<leader>t', "<Plug>Lightspeed_t", {})
-vim.api.nvim_set_keymap('n', '<leader>T', "<Plug>Lightspeed_T", {})
-
--- Navigate to nvim config
-vim.api.nvim_exec([[
-function! Config()
-  execute 'cd ~/.config/nvim/lua'
-  lua require('telescope.builtin').find_files({search_dirs = {'~/.config/nvim/lua'}})
-endfunction
-
-command! -nargs=0 Config call Config()
-]], false)
-
--- vim-illuminate
-vim.api.nvim_set_keymap('n', '<a-n>',
-                        '<cmd>lua require"illuminate".next_reference{wrap=true}<cr>',
-                        {noremap = true})
-vim.api.nvim_set_keymap('n', '<a-p>',
-                        '<cmd>lua require"illuminate".next_reference{reverse=true,wrap=true}<cr>',
-                        {noremap = true})
+vim.api.nvim_set_keymap('n', '<leader>T', "<Plug>Lightspeed_T", {}) ]]
 
 -- Insert mode navigation
-map('i', '<c-b>', '<left>')
-map('i', '<c-n>', '<down>')
-map('i', '<c-p>', '<up>')
-map('i', '<c-f>', '<right>')
 map('c', '<c-b>', '<left>')
 map('c', '<c-n>', '<down>')
 map('c', '<c-p>', '<up>')

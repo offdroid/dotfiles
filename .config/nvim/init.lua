@@ -1,7 +1,8 @@
 -- { 'impatient', 'packer_compiled', }
 local modules = {
     'options', 'impatient', 'plugins', 'packer_compiled', 'plugins.lspconfig',
-    'plugins.treesitter', 'mappings', 'plugins.telescope', 'plugins.misc'
+    'plugins.treesitter', 'mappings', 'plugins.telescope', 'plugins.misc',
+    'plugins.dap'
 }
 
 for i = 1, #modules do

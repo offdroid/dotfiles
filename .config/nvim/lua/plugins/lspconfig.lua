@@ -2,6 +2,7 @@ local nvim_lsp = require 'lspconfig'
 
 local cmp = require 'cmp'
 local lspkind = require 'lspkind'
+local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
 cmp.setup {
     snippet = {expand = function(args) vim.fn['vsnip#anonymous'](args.body) end},
     mapping = {
@@ -29,24 +30,20 @@ cmp.setup {
         end
     }
 }
+cmp.event:on('confirm_done',
+             cmp_autopairs.on_confirm_done({map_char = {tex = ''}}))
 
 local function diagnostics_symbols(opts)
     -- Source: https://github.com/glepnir/lspsaga.nvim/blob/cb0e35d2e594ff7a9c408d2e382945d56336c040/lua/lspsaga/diagnostic.lua#L202-L228
     local group = {
-        err_group = {
-            highlight = 'LspDiagnosticsSignError',
-            sign = opts.error_sign
-        },
+        err_group = {highlight = 'DiagnosticSignError', sign = opts.error_sign},
         warn_group = {
-            highlight = 'LspDiagnosticsSignWarning',
+            highlight = 'DiagnosticSignWarning',
             sign = opts.warn_sign
         },
-        hint_group = {
-            highlight = 'LspDiagnosticsSignHint',
-            sign = opts.hint_sign
-        },
+        hint_group = {highlight = 'DiagnosticSignHint', sign = opts.hint_sign},
         infor_group = {
-            highlight = 'LspDiagnosticsSignInformation',
+            highlight = 'DiagnosticSignInformation',
             sign = opts.infor_sign
         }
     }
@@ -62,58 +59,154 @@ local function diagnostics_symbols(opts)
 end
 
 local on_attach = function(client, bufnr)
-    local function buf_set_keymap(...)
-        vim.api.nvim_buf_set_keymap(bufnr, ...)
-    end
     local function buf_set_option(...)
         vim.api.nvim_buf_set_option(bufnr, ...)
     end
     buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 
     -- Mappings
-    local opts = {noremap = true, silent = true}
-    buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-    buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<cr>', opts)
-    buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<cr>', opts)
-    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-    -- Signature help
-    buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<cr>',
-                   opts)
-    -- buf_set_keymap('n', '<C-k>', [[<cmd>lua require('lspsaga.signaturehelp').signature_help()<cr>]], opts)
-    buf_set_keymap('n', '<leader>wa',
-                   '<cmd>lua vim.lsp.buf.add_workspace_folder()<cr>', opts)
-    buf_set_keymap('n', '<leader>wr',
-                   '<cmd>lua vim.lsp.buf.remove_workspace_folder()<cr>', opts)
-    buf_set_keymap('n', '<leader>wl',
-                   '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<cr>',
-                   opts)
-    buf_set_keymap('n', '<leader>D',
-                   '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-    -- Rename
-    buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-    -- buf_set_keymap('n', '<leader>rn', [[<cmd>lua require('lspsaga.rename').rename()<cr>]], opts)
-    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-    buf_set_keymap('n', '<leader>e',
-                   '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>',
-                   opts)
-    buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<cr>',
-                   opts)
-    buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<cr>',
-                   opts)
-    buf_set_keymap('n', '<leader>q',
-                   '<cmd>lua vim.lsp.diagnostic.set_loclist()<cr>', opts)
-    -- Code action
-    buf_set_keymap('n', 'ga', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
-    -- buf_set_keymap('n', 'ga', [[<cmd>lua require('lspsaga.codeaction').code_action()<cr>]], opts)
+    local wk = require 'which-key'
+    wk.register({
+        g = {
+            name = '+lsp',
+            D = {
+                function() vim.lsp.buf.declaration() end,
+                'Go to declaration',
+                noremap = true,
+                silent = true
+            },
+            d = {
+                function() vim.lsp.buf.definition() end,
+                'Go to definition',
+                noremap = true,
+                silent = true
+            },
+            i = {
+                function() vim.lsp.buf.implementation() end,
+                'Go to implementation',
+                noremap = true,
+                silent = true
+            },
+            a = {
+                function() vim.lsp.buf.code_action() end,
+                'Code action',
+                noremap = true,
+                silent = true
+            },
+            r = {
+                function() vim.lsp.buf.references() end,
+                'Show references',
+                noremap = true,
+                silent = true
+            }
+        },
+        ['<leader>'] = {
+            D = {
+                function() vim.lsp.buf.type_definition() end,
+                'Go to type definition',
+                noremap = true,
+                silent = true
+            },
+            rn = {
+                function() vim.lsp.buf.rename() end,
+                'Rename',
+                noremap = true,
+                silent = true
+            },
+            e = {
+                function()
+                    vim.lsp.diagnostic.show_line_diagnostics()
+                end,
+                'Show line diagnostics',
+                noremap = true,
+                silent = true
+            },
+            q = {
+                function() vim.lsp.diagnostic.set_loclist() end,
+                'Set loc list',
+                noremap = true,
+                silent = true
+            },
+            w = {
+                name = '+workspace',
+                a = {
+                    function()
+                        vim.lsp.buf.add_workspace_folder()
+                    end,
+                    'Add workspace folder',
+                    noremap = true,
+                    silent = true
+                },
+                d = {
+                    function()
+                        vim.lsp.buf.remove_workspace_folder()
+                    end,
+                    'Remove workspace folder',
+                    noremap = true,
+                    silent = true
+                },
+                l = {
+                    function()
+                        print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+                    end,
+                    'List workspace folders',
+                    noremap = true,
+                    silent = true
+                }
+            }
+        },
+        ['[d'] = {
+            function() vim.lsp.diagnostic.goto_prev() end,
+            'Previous diagnostic',
+            noremap = true,
+            silent = true
+        },
+        [']d'] = {
+            function() vim.lsp.diagnostic.goto_next() end,
+            'Next diagnostic',
+            noremap = true,
+            silent = true
+        },
+        K = {
+            function() vim.lsp.buf.hover() end,
+            'Lsp hover',
+            noremap = true,
+            silent = true
+        },
+        ['<c-k>'] = {
+            function() vim.lsp.buf.signature_help() end,
+            'Signature help',
+            noremap = true,
+            silent = true
+        }
+        --[[ ['<a-p>'] = {
+            function()
+                require'illuminate'.next_reference {reverse = true, wrap = true}
+            end,
+            'Prev reference',
+            noremap = true
+        },
+        ['<a-n>'] = {
+            function()
+                require'illuminate'.next_reference {wrap = true}
+            end,
+            'Next reference',
+            noremap = true
+        } ]]
+    }, {buffer = 0})
 
     -- Set some keybinds conditional on server capabilities
     if client.resolved_capabilities.document_formatting then
-        buf_set_keymap('n', '<leader>gq',
-                       '<cmd>lua vim.lsp.buf.formatting()<cr>', opts)
-        vim.cmd [[autocmd BufWritePre *.rs lua vim.lsp.buf.formatting_sync(nil, 200)]]
+        wk.register({
+            ['<leader>gq'] = {function() vim.lsp.buf.formatting() end, 'Format'}
+        }, {buffer = 0})
+        -- vim.cmd [[autocmd BufWritePre *.rs lua vim.lsp.buf.formatting_sync(nil, 200)]]
     elseif client.resolved_capabilities.document_range_formatting then
-        buf_set_keymap('n', '<leader>gq',
-                       '<cmd>lua vim.lsp.buf.range_formatting()<cr>', opts)
+        wk.register({
+            ['<leader>gq'] = {
+                function() vim.lsp.buf.range_formatting() end, 'Format'
+            }
+        }, {buffer = 0})
     end
 
     if client.resolved_capabilities.signature_help then
@@ -131,7 +224,7 @@ local on_attach = function(client, bufnr)
             toggle_key = '<m-x>'
         })
     end
-    require'illuminate'.on_attach(client)
+    -- require'illuminate'.on_attach(client)
 end
 
 vim.g.Illuminate_delay = 100
@@ -142,17 +235,15 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities = require'cmp_nvim_lsp'.update_capabilities(capabilities)
 
-vim.lsp.handlers['textDocument/publishDiagnostics'] =
-    vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-        virtual_text = {
-            -- prefix = '',
-            prefix = '',
-            spacing = 0
-        },
-        signs = true,
-        underline = true,
-        update_in_insert = true
-    })
+vim.diagnostic.config({
+    signs = true,
+    update_in_insert = true,
+    virtual_text = {
+        -- prefix = '',
+        prefix = '',
+        spacing = 0
+    }
+})
 
 local function setup_servers(servers)
     -- Setup regular servers without specific config
@@ -166,31 +257,6 @@ local function setup_servers(servers)
             on_attach = on_attach,
             capabilities = capabilities,
             settings = settings
-        }
-    end
-end
-
-local function setup_grammar_guard()
-    local ok, res = pcall(require, 'grammar-guard')
-    if ok then
-        res.init()
-        nvim_lsp.grammar_guard.setup {
-            on_attach = on_attach,
-            capabilities = capabilities,
-            filetypes = {'tex', 'bib', 'markdown', 'org'},
-            settings = {
-                ltex = {
-                    enabled = {'tex', 'bib', 'markdown', 'org'},
-                    language = 'en-US',
-                    diagnosticSeverity = 'information',
-                    checkFrequency = 'edit',
-                    sentenceCacheSize = 2000,
-                    additionalRules = {
-                        enablePickyRules = true,
-                        motherTongue = 'en-US'
-                    }
-                }
-            }
         }
     end
 end
@@ -237,11 +303,10 @@ setup_servers {
             }
         }
     }, {'pylsp', {pylsp = {plugins = {mccabe = {threshold = 19}}}}}, 'tsserver',
-    'html'
+    'html', 'ltex', 'gopls'
 }
 if vim.fn.has('unix') == 1 then
     pcall(setup_lua)
-    pcall(setup_grammar_guard)
     require('rust-tools').setup({
         server = {on_attach = on_attach, capabilities = capabilities}
     })
