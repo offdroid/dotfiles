@@ -1,19 +1,35 @@
--- { 'impatient', 'packer_compiled', }
-local modules = {
-    'options', 'impatient', 'plugins', 'packer_compiled', 'plugins.lspconfig',
-    'plugins.treesitter', 'mappings', 'plugins.telescope', 'plugins.misc',
-    'plugins.dap'
-}
+require("core.options")
 
-for i = 1, #modules do
-    local ok, res = pcall(require, modules[i])
-    if not (ok) then
-        if modules[i] == 'impatient' then
-            -- Plugins aren't installed yet. Cancel further config loading.
-            require 'plugins'
-            break
-        end
-        print('Error loading module: ' .. modules[i])
-        print(res)
-    end
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+        "git",
+        "clone",
+        "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable",
+        lazypath,
+    })
+end
+vim.opt.rtp:prepend(lazypath)
+
+local plugins = require("plugins")
+require("lazy").setup(plugins, opts)
+
+vim.cmd([[colorscheme carbonfox]])
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+
+-- Utils
+P = function(value)
+    print(vim.inspect(value))
+    return value
+end
+
+RELOAD = function(...)
+    return require("plenary.reload").reload_module(...)
+end
+
+R = function(name)
+    RELOAD(name)
+    return require(name)
 end
